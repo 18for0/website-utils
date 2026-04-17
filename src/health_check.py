@@ -8,7 +8,7 @@ import os
 from typing import Any
 from urllib import error, request
 
-from src.common import LambdaError, get_logger, handler_entrypoint
+from src.common import LambdaError, browser_request, get_logger, handler_entrypoint
 
 log = get_logger(__name__)
 
@@ -25,7 +25,7 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
     timeout = int(os.environ.get("TARGET_TIMEOUT", DEFAULT_TIMEOUT))
 
     try:
-        with request.urlopen(url, timeout=timeout) as resp:
+        with request.urlopen(browser_request(url), timeout=timeout) as resp:
             status = resp.status
     except error.URLError as err:
         raise LambdaError(f"health check request failed: {err}") from err

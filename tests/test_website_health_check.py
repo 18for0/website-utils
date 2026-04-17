@@ -5,6 +5,7 @@ import pytest
 
 from src import website_health_check
 from src.common.errors import LambdaError
+from src.common.http import BROWSER_USER_AGENT
 
 
 @pytest.fixture(autouse=True)
@@ -35,7 +36,7 @@ def test_returns_status_on_success():
     notify.assert_not_called()
 
     sent_request = urlopen.call_args.args[0]
-    assert sent_request.get_header("User-agent") == website_health_check.USER_AGENT
+    assert sent_request.get_header("User-agent") == BROWSER_USER_AGENT
 
 
 def test_missing_url_notifies_with_site_specific_subject(monkeypatch):

@@ -14,7 +14,7 @@ import os
 from typing import Any
 from urllib import error, request
 
-from src.common import LambdaError, get_logger, handler_entrypoint
+from src.common import LambdaError, browser_request, get_logger, handler_entrypoint
 
 log = get_logger(__name__)
 
@@ -23,14 +23,6 @@ ENV_TARGET_URL = "TARGET_URL"
 ENV_TARGET_TIMEOUT = "TARGET_TIMEOUT"
 DEFAULT_TIMEOUT_SECONDS = 10
 EMAIL_SUBJECT = "[18for0] Website DOWN - morning health check failed"
-
-# Cloudflare (fronting the public site) rejects the default Python-urllib
-# User-Agent with HTTP 403. Present as a current mainstream desktop browser
-# so the probe measures real reachability, not WAF fingerprinting.
-USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-)
 
 
 def _down_email_body(target_url: str, detail: str) -> str:
@@ -59,9 +51,8 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
 
     timeout_seconds = int(os.environ.get(ENV_TARGET_TIMEOUT, DEFAULT_TIMEOUT_SECONDS))
 
-    probe = request.Request(target_url, headers={"User-Agent": USER_AGENT})
     try:
-        with request.urlopen(probe, timeout=timeout_seconds) as response:
+        with request.urlopen(browser_request(target_url), timeout=timeout_seconds) as response:
             response_status = response.status
     except error.URLError as err:
         raise LambdaError(

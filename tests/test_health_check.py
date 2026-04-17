@@ -4,6 +4,7 @@ import pytest
 
 from src import health_check
 from src.common.errors import LambdaError
+from src.common.http import BROWSER_USER_AGENT
 
 
 @pytest.fixture(autouse=True)
@@ -21,13 +22,16 @@ def _fake_response(status: int) -> MagicMock:
 
 def test_returns_status_on_success():
     with (
-        patch.object(health_check.request, "urlopen", return_value=_fake_response(200)),
+        patch.object(health_check.request, "urlopen", return_value=_fake_response(200)) as urlopen,
         patch("src.common.errors.notify_failure") as notify,
     ):
         result = health_check.lambda_handler({}, None)
 
     assert result == {"url": "https://example.test/health", "status": 200}
     notify.assert_not_called()
+
+    sent_request = urlopen.call_args.args[0]
+    assert sent_request.get_header("User-agent") == BROWSER_USER_AGENT
 
 
 def test_missing_url_notifies_and_raises(monkeypatch):

@@ -40,9 +40,10 @@ No additional permissions required; the handler only uses `urllib`.
 The probe sends a mainstream desktop Chrome `User-Agent`. The default
 `Python-urllib/X.Y` UA is rejected with HTTP 403 by the Cloudflare WAF
 fronting the public site, which would make the check always fail on
-fingerprinting rather than reachability. The UA string is a module-level
-constant (`USER_AGENT` in `src/website_health_check.py`); update it when
-it becomes stale.
+fingerprinting rather than reachability. The UA string lives in
+`src/common/http.py` (`BROWSER_USER_AGENT`) and is shared by every
+Lambda that performs an outbound HTTP probe, via `browser_request(url)`.
+Update it centrally when it becomes stale.
 
 ## Notification behaviour
 
