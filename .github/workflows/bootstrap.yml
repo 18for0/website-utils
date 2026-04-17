@@ -25,6 +25,12 @@ permissions:
   id-token: write
   contents: read
 
+# Opt the JS-based actions (checkout, configure-aws-credentials, setup-terraform)
+# onto Node.js 24 ahead of GitHub's 2026-06-02 default switch, so we don't hit
+# the Node 20 deprecation warning on every run.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
