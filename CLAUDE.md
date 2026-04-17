@@ -15,7 +15,7 @@ Python 3.13+ AWS Lambda functions that perform maintenance tasks on a website ho
 
 ## Terraform state
 
-Remote state lives in S3 bucket **`18for0-website-utils`**. The bucket must be created (via a one-time bootstrap) before `terraform init` can succeed — treat it as a prerequisite, not something a normal plan/apply creates. The backend config should reference this bucket.
+Remote state lives in S3 bucket **`18for0-website-utils-state`**. The bucket must be created (via a one-time bootstrap) before `terraform init` can succeed — treat it as a prerequisite, not something a normal plan/apply creates. The backend config should reference this bucket.
 
 ## Commands
 

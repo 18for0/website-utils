@@ -30,7 +30,7 @@ ruff check .
 
 ## Infrastructure
 
-State is stored in the S3 bucket **`18for0-website-utils`**. The bucket itself
+State is stored in the S3 bucket **`18for0-website-utils-state`**. The bucket itself
 is created by the one-time bootstrap in `terraform/bootstrap/`:
 
 ```bash

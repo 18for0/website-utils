@@ -1,7 +1,7 @@
 # Terraform state bootstrap
 
-Creates the S3 bucket `18for0-website-utils` that the root Terraform
-configuration uses as its remote backend.
+Creates the S3 bucket `18for0-website-utils-state` that the root
+Terraform configuration uses as its remote backend.
 
 **Run once** when provisioning a new AWS account. Two ways:
 

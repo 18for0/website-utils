@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "bucket_name" {
   type    = string
-  default = "18for0-website-utils"
+  default = "18for0-website-utils-state"
 }
 
 provider "aws" {
