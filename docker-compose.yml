@@ -1,0 +1,17 @@
+services:
+  website_health_check:
+    build:
+      context: .
+      dockerfile: docker/website_health_check/Dockerfile
+    image: website-utils/website_health_check:local
+    ports:
+      - "9001:8080"
+    environment:
+      LOG_LEVEL: DEBUG
+      TARGET_URL: https://18for0.lennonsec.org
+      TARGET_TIMEOUT: "10"
+      # ERROR_TOPIC_ARN is optional locally: when unset the handler logs but
+      # skips SNS publish (see src/common/notify.py). Set a real topic ARN and
+      # valid AWS creds via a .env file if you want to exercise the notification
+      # path end-to-end.
+      ERROR_TOPIC_ARN: ""

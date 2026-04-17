@@ -1,0 +1,17 @@
+.venv/
+.git/
+.github/
+.claude/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+.env
+.coverage
+htmlcov/
+tests/
+terraform/
+docs/
+*.md
+requirements-dev.txt
+.pre-commit-config.yaml

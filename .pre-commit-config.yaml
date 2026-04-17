@@ -1,0 +1,29 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: trufflehog secret scan
+        entry: bash -c 'trufflehog git file://. --since-commit HEAD --results=verified,unknown --fail --no-update'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]
+
+      - id: pytest
+        name: pytest
+        entry: .venv/bin/pytest
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: docs-freshness
+        name: docs updated alongside src/
+        entry: bash -c 'src_changed=$(git diff --cached --name-only | grep -E "^src/.+\.py$" || true); docs_changed=$(git diff --cached --name-only | grep -E "^docs/" || true); if [ -n "$src_changed" ] && [ -z "$docs_changed" ]; then echo "src/ changed but docs/ did not — update docs/lambdas/<name>.md in this commit"; exit 1; fi'
+        language: system
+        pass_filenames: false

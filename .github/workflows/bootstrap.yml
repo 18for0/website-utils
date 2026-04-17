@@ -1,0 +1,66 @@
+name: bootstrap
+
+# Creates the S3 bucket that backs the main Terraform state
+# (terraform/backend.tf references `18for0-website-utils`). Run once when
+# setting up a new AWS account; subsequent runs no-op because the
+# pre-flight check skips `terraform apply` if the bucket already exists.
+#
+# Bootstrap Terraform uses *local* state on the runner because it cannot
+# use remote state — it is the thing that creates the remote-state
+# bucket. The pre-flight check makes re-runs safe despite local state
+# being discarded with the runner.
+#
+# Security note: this workflow only consumes trusted inputs
+# (secrets.* and vars.*). It does not interpolate any github.event.*
+# fields into run: blocks.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: bootstrap
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_BOOTSTRAP_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Check whether state bucket already exists
+        id: check
+        env:
+          STATE_BUCKET: 18for0-website-utils
+        run: |
+          if aws s3api head-bucket --bucket "$STATE_BUCKET" 2>/dev/null; then
+            echo "State bucket $STATE_BUCKET already exists - bootstrap is a no-op."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "State bucket does not exist - will create via terraform."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: hashicorp/setup-terraform@v3
+        if: steps.check.outputs.skip == 'false'
+        with:
+          terraform_version: 1.9.8
+
+      - name: terraform init
+        if: steps.check.outputs.skip == 'false'
+        run: terraform init
+        working-directory: terraform/bootstrap
+
+      - name: terraform apply
+        if: steps.check.outputs.skip == 'false'
+        run: terraform apply -auto-approve
+        working-directory: terraform/bootstrap
