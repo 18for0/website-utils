@@ -1,4 +1,5 @@
 import functools
+import traceback
 from collections.abc import Callable
 from typing import Any
 
@@ -60,6 +61,8 @@ def handler_entrypoint(function_name: str) -> Callable[[Handler], Handler]:
                         function_name=function_name,
                         error=err,
                         event=event,
+                        context=context,
+                        traceback_text=traceback.format_exc(),
                         subject=getattr(err, "subject", None),
                         body=getattr(err, "body", None),
                     )
