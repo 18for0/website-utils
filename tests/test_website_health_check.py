@@ -26,13 +26,16 @@ def test_returns_status_on_success():
             website_health_check.request,
             "urlopen",
             return_value=_fake_response(200),
-        ),
+        ) as urlopen,
         patch("src.common.errors.notify_failure") as notify,
     ):
         result = website_health_check.lambda_handler({}, None)
 
     assert result == {"url": "https://18for0.lennonsec.org", "status": 200}
     notify.assert_not_called()
+
+    sent_request = urlopen.call_args.args[0]
+    assert sent_request.get_header("User-agent") == website_health_check.USER_AGENT
 
 
 def test_missing_url_notifies_with_site_specific_subject(monkeypatch):

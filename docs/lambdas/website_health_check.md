@@ -35,6 +35,15 @@ Inherits the shared Lambda module's policy:
 
 No additional permissions required; the handler only uses `urllib`.
 
+## Request headers
+
+The probe sends a mainstream desktop Chrome `User-Agent`. The default
+`Python-urllib/X.Y` UA is rejected with HTTP 403 by the Cloudflare WAF
+fronting the public site, which would make the check always fail on
+fingerprinting rather than reachability. The UA string is a module-level
+constant (`USER_AGENT` in `src/website_health_check.py`); update it when
+it becomes stale.
+
 ## Notification behaviour
 
 - **Success**: logs `website_health_check_ok` at INFO, returns
